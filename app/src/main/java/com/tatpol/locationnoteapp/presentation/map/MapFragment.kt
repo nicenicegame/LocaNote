@@ -52,6 +52,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         map.setMaxZoomPreference(18f)
         map.setInfoWindowAdapter(CustomInfoWindowAdapter(requireContext()))
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(Constants.BANGKOK_POSITION, 10f))
+        map.setOnMarkerClickListener(this)
+        map.setOnInfoWindowLongClickListener(this)
 
         subscribeUi()
     }
@@ -63,7 +65,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     }
 
     override fun onInfoWindowLongClick(marker: Marker) {
-        TODO("Not yet implemented")
+        marker.hideInfoWindow()
     }
 
     private fun subscribeUi() {

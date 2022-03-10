@@ -3,21 +3,25 @@ package com.tatpol.locationnoteapp.presentation.views
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.widget.FrameLayout
+import com.tatpol.locationnoteapp.databinding.CustomInfoWindowBinding
 
 class InfoWindowView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs) {
 
-    private val cornerRadius = 100f
-    private val offset = 30f
+    private var binding: CustomInfoWindowBinding
+
+    private val cornerRadius = 50f
+    private val offset = 40f
     private val square = 30f
 
     private val shadowPaint = Paint().apply {
         style = Paint.Style.FILL
         isAntiAlias = true
-        maskFilter = BlurMaskFilter(offset, BlurMaskFilter.Blur.OUTER)
-        alpha = 50
+        maskFilter = BlurMaskFilter(offset / 2, BlurMaskFilter.Blur.OUTER)
+        alpha = 75
     }
 
     private val backgroundPaint = Paint().apply {
@@ -26,14 +30,28 @@ class InfoWindowView @JvmOverloads constructor(
         color = Color.WHITE
     }
 
+    private val path = Path()
+
     init {
         setWillNotDraw(false)
+        binding = CustomInfoWindowBinding
+            .inflate(
+                LayoutInflater.from(context),
+                this,
+                true
+            )
     }
-
-    private val path = Path()
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
+        setupPath()
+        canvas?.let {
+            it.drawPath(path, shadowPaint)
+            it.drawPath(path, backgroundPaint)
+        }
+    }
+
+    private fun setupPath() {
         path.apply {
             reset()
             moveTo(offset, cornerRadius + offset)
@@ -62,9 +80,10 @@ class InfoWindowView @JvmOverloads constructor(
             lineTo(offset, height - offset)
             close()
         }
-        canvas?.let {
-            it.drawPath(path, shadowPaint)
-            it.drawPath(path, backgroundPaint)
-        }
+    }
+
+    fun setInfoWindowContent(title: String?, snippet: String?) {
+        binding.tvTitle.text = title
+        binding.tvSnippet.text = snippet
     }
 }
