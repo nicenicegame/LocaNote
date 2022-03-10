@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mapFragment">
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.tatpol.locationnoteapp.presentation.map.MapFragment"
+        android:label="MapFragment"
+        tools:layout="@layout/fragment_map" />
+    <fragment
+        android:id="@+id/noteListFragment"
+        android:name="com.tatpol.locationnoteapp.presentation.note_list.NoteListFragment"
+        android:label="NoteListFragment"
+        tools:layout="@layout/fragment_note_list" />
+    <fragment
+        android:id="@+id/createEditFragment"
+        android:name="com.tatpol.locationnoteapp.presentation.create_edit.CreateEditFragment"
+        android:label="CreateEditFragment"
+        tools:layout="@layout/fragment_create_edit" />
+
+</navigation>

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">LocationNoteApp</string>
+    <string name="menu_map">Map</string>
+    <string name="menu_notes">Notes</string>
+    <string name="menu_create">Create</string>
+    <string name="notes_list_str">Notes List</string>
+    <string name="long_click_action">Long click to get route</string>
+</resources>

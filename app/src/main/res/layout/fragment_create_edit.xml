@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.tatpol.locationnoteapp.presentation.views.InfoWindowView
+        android:id="@+id/infoWindowView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="fdsafdsafjmiosdfjiosdjfodisfjdioafjdsiafjaios" />
+
+    </com.tatpol.locationnoteapp.presentation.views.InfoWindowView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
