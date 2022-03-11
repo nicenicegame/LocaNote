@@ -5,6 +5,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.core.view.setPadding
 import com.tatpol.locationnoteapp.databinding.CustomInfoWindowBinding
 
 class InfoWindowView @JvmOverloads constructor(
@@ -13,15 +14,16 @@ class InfoWindowView @JvmOverloads constructor(
 
     private var binding: CustomInfoWindowBinding
 
-    private val cornerRadius = 50f
-    private val offset = 40f
+    private val cornerRadius = 16f
+    private val offset = 32f
     private val square = 30f
+    private val defaultPadding = 8f
 
     private val shadowPaint = Paint().apply {
-        style = Paint.Style.FILL
         isAntiAlias = true
-        maskFilter = BlurMaskFilter(offset / 2, BlurMaskFilter.Blur.OUTER)
-        alpha = 75
+        style = Paint.Style.FILL
+        maskFilter = BlurMaskFilter(offset / 4, BlurMaskFilter.Blur.OUTER)
+        alpha = 64
     }
 
     private val backgroundPaint = Paint().apply {
@@ -34,6 +36,7 @@ class InfoWindowView @JvmOverloads constructor(
 
     init {
         setWillNotDraw(false)
+        setPadding((offset + defaultPadding).toInt(),)
         binding = CustomInfoWindowBinding
             .inflate(
                 LayoutInflater.from(context),
@@ -58,26 +61,42 @@ class InfoWindowView @JvmOverloads constructor(
             arcTo(
                 offset,
                 offset,
-                cornerRadius + offset,
-                cornerRadius + offset,
+                2 * cornerRadius + offset,
+                2 * cornerRadius + offset,
                 180f,
                 90f,
                 false
             )
             arcTo(
-                width - offset - cornerRadius,
+                width - (offset + 2 * cornerRadius),
                 offset,
                 width - offset,
-                offset + cornerRadius,
+                offset + 2 * cornerRadius,
                 270f,
                 90f,
                 false
             )
-            lineTo(width - offset, height - offset)
+            arcTo(
+                width - (offset + 2 * cornerRadius),
+                height - (offset + 2 * cornerRadius),
+                width - offset,
+                height - offset,
+                0f,
+                90f,
+                false
+            )
             lineTo(width / 2f + square, height - offset)
             lineTo(width / 2f, height - offset + square)
             lineTo(width / 2f - square, height - offset)
-            lineTo(offset, height - offset)
+            arcTo(
+                offset,
+                height - (offset + 2 * cornerRadius),
+                offset + 2 * cornerRadius,
+                height - offset,
+                90f,
+                90f,
+                false
+            )
             close()
         }
     }
