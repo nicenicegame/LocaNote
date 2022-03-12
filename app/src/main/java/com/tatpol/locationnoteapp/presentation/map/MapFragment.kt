@@ -3,7 +3,6 @@ package com.tatpol.locationnoteapp.presentation.map
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -48,8 +47,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     private var locationPermissionGranted = false
 
-    private var lastKnownLocation: Location? = null
-
     private val viewModel: MapViewModel by viewModels()
 
     private val markers = mutableListOf<Marker>()
@@ -69,10 +66,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         binding = FragmentMapBinding.inflate(inflater)
         binding.fabMyLocation.hide()
         binding.fabMyLocation.setOnClickListener {
-            lastKnownLocation?.let {
-                val lastKnowLatLng =
-                    LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(lastKnowLatLng, 15f))
+            viewModel.lastKnownLocation?.let {
+                map.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(
+                            it.latitude,
+                            it.longitude
+                        ), 15f
+                    )
+                )
             }
         }
         initMap()
@@ -132,7 +134,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         } else {
             binding.fabMyLocation.hide()
             map.isMyLocationEnabled = false
-            lastKnownLocation = null
             getLocationPermission()
         }
     }
@@ -140,14 +141,17 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     @SuppressLint("MissingPermission")
     private fun getDeviceLocation() {
         if (!locationPermissionGranted) return
+        if (viewModel.lastKnownLocation != null) return
 
         fusedLocationProviderClient.lastLocation
             .addOnSuccessListener { location ->
-                lastKnownLocation = location
+                viewModel.updateLastKnownLocation(location)
 
-                if (lastKnownLocation != null) {
-                    val lastKnownLatLng =
-                        LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
+                if (viewModel.lastKnownLocation != null) {
+                    val lastKnownLatLng = LatLng(
+                        viewModel.lastKnownLocation!!.latitude,
+                        viewModel.lastKnownLocation!!.longitude
+                    )
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLatLng, 10f))
                 } else {
                     map.moveCamera(
@@ -171,6 +175,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
                 }
                 is Resource.Loading -> {}
+            }
+        }
+        viewModel.mapMode.observe(viewLifecycleOwner) { mapMode ->
+            when (mapMode) {
+                is MapMode.NormalMode -> {
+                    binding.cvNavigation.visibility = View.GONE
+                }
+                is MapMode.NavigationMode -> {
+                    binding.cvNavigation.visibility = View.VISIBLE
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -26,6 +27,7 @@
         android:fitsSystemWindows="true">
 
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cvNavigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
@@ -37,13 +39,61 @@
                 android:id="@+id/clCard"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="16dp">
+                android:padding="8dp">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/tvYourLocation"
+                    style="?attr/textAppearanceHeadline6"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Your Location"
+                    android:text="@string/your_location_str"
+                    android:textColor="?attr/colorPrimaryVariant"
+                    app:layout_constraintEnd_toStartOf="@+id/tvDistance"
+                    app:layout_constraintStart_toStartOf="@id/clCard"
                     app:layout_constraintTop_toTopOf="@+id/clCard" />
+
+                <TextView
+                    android:id="@+id/tvDistance"
+                    style="?attr/textAppearanceHeadline6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="@+id/clCard"
+                    app:layout_constraintTop_toTopOf="@id/clCard"
+                    tools:text="10.9 KM" />
+
+                <ImageView
+                    android:id="@+id/ivArrowDown"
+                    android:layout_width="32dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/down_icon"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_arrow_down"
+                    app:layout_constraintStart_toStartOf="@id/clCard"
+                    app:layout_constraintTop_toBottomOf="@+id/tvYourLocation" />
+
+                <TextView
+                    android:id="@+id/tvNoteTitle"
+                    style="?attr/textAppearanceHeadline6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    app:layout_constraintStart_toStartOf="@id/clCard"
+                    app:layout_constraintTop_toBottomOf="@id/ivArrowDown"
+                    tools:text="Fashion Island Parking" />
+
+                <TextView
+                    android:id="@+id/tvPlaceDetail"
+                    style="?attr/textAppearanceSubtitle2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="@color/quantum_grey400"
+                    app:layout_constraintStart_toStartOf="@id/clCard"
+                    app:layout_constraintTop_toBottomOf="@id/tvNoteTitle"
+                    tools:text="587 589 587 Ram Inthra Rd, Khan Na Yao, Bangkok 10230" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

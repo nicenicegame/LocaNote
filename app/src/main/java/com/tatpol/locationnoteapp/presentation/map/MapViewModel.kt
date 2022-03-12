@@ -1,12 +1,9 @@
 package com.tatpol.locationnoteapp.presentation.map
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
-import com.tatpol.locationnoteapp.data.model.Resource
+import android.location.Location
+import androidx.lifecycle.*
 import com.tatpol.locationnoteapp.data.repository.NotesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,4 +12,18 @@ class MapViewModel @Inject constructor(
 ) : ViewModel() {
 
     val notes = notesRepository.notesFlow.asLiveData()
+
+    private var _lastKnownLocation: Location? = null
+    val lastKnownLocation get() = _lastKnownLocation
+
+    private var _mapMode = MutableLiveData<MapMode>()
+    val mapMode: LiveData<MapMode> get() = _mapMode
+
+    init {
+        _mapMode.value = MapMode.NormalMode
+    }
+
+    fun updateLastKnownLocation(location: Location) {
+        _lastKnownLocation = location
+    }
 }

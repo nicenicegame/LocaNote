@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
 import com.tatpol.locationnoteapp.data.repository.NotesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,4 +16,8 @@ class NoteListViewModel @Inject constructor(
 ) : ViewModel() {
 
     val notes = notesRepository.notesFlow.asLiveData()
+
+    fun deleteNote(note: Note) {
+        notesRepository.deleteNote(note)
+    }
 }

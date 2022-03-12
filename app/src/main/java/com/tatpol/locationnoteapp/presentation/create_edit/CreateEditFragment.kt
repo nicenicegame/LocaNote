@@ -20,7 +20,6 @@ class CreateEditFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentCreateEditBinding.inflate(inflater)
-
         return binding.root
     }
 }
