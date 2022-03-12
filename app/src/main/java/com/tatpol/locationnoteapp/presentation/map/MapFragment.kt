@@ -53,8 +53,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        locationPermissionGranted = granted
+    ) { isGranted ->
+        locationPermissionGranted = isGranted
         updateLocationUi()
     }
 
