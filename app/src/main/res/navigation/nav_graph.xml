@@ -14,7 +14,17 @@
         android:id="@+id/noteListFragment"
         android:name="com.tatpol.locationnoteapp.presentation.note_list.NoteListFragment"
         android:label="NoteListFragment"
-        tools:layout="@layout/fragment_note_list" />
+        tools:layout="@layout/fragment_note_list" >
+        <action
+            android:id="@+id/action_noteListFragment_to_createEditFragment"
+            app:destination="@id/createEditFragment"
+            app:popUpTo="@id/mapFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_noteListFragment_to_mapFragment"
+            app:destination="@id/mapFragment"
+            app:popUpTo="@id/mapFragment" />
+    </fragment>
     <fragment
         android:id="@+id/createEditFragment"
         android:name="com.tatpol.locationnoteapp.presentation.create_edit.CreateEditFragment"

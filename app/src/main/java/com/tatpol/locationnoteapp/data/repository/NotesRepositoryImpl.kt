@@ -5,7 +5,7 @@ import androidx.lifecycle.asLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.tatpol.locationnoteapp.Constants
+import com.tatpol.locationnoteapp.Constants.NOTES_COLLECTION_PATH
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -19,7 +19,7 @@ class NotesRepositoryImpl(
     private val auth: FirebaseAuth
 ) : NotesRepository {
 
-    private val notesCollection = db.collection(Constants.NOTES_COLLECTION_PATH)
+    private val notesCollection = db.collection(NOTES_COLLECTION_PATH)
 
     private val userFlow: Flow<FirebaseUser?>
         get() = callbackFlow {

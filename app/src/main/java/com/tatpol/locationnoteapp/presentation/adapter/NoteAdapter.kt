@@ -69,6 +69,7 @@ class NoteAdapter(
             binding.apply {
                 tvNoteTitle.text = note.title
                 tvNoteDescription.text = note.description
+                tvNoteAddress.text = note.address
             }
         }
     }

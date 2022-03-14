@@ -5,12 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
+import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
 import com.tatpol.locationnoteapp.databinding.FragmentNoteListBinding
+import com.tatpol.locationnoteapp.presentation.EventType
+import com.tatpol.locationnoteapp.presentation.NoteEvent
 import com.tatpol.locationnoteapp.presentation.adapter.NoteAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -29,6 +36,11 @@ class NoteListFragment : Fragment(), NoteAdapter.NoteItemClickListener {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentNoteListBinding.inflate(inflater)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         noteAdapter = NoteAdapter(requireContext(), this)
         binding.rvNoteList.apply {
@@ -37,8 +49,6 @@ class NoteListFragment : Fragment(), NoteAdapter.NoteItemClickListener {
         }
 
         subscribeUi()
-
-        return binding.root
     }
 
     private fun subscribeUi() {
@@ -56,11 +66,15 @@ class NoteListFragment : Fragment(), NoteAdapter.NoteItemClickListener {
     }
 
     override fun onGetNoteRoute(note: Note) {
-        TODO("Not yet implemented")
+        val event = NoteEvent(note, EventType.SHOW_NOTE_ROUTE)
+        setFragmentResult(NOTE_EVENT_REQUEST_KEY, bundleOf(NOTE_EVENT_BUNDLE_KEY to event))
+        findNavController().navigate(NoteListFragmentDirections.actionNoteListFragmentToMapFragment())
     }
 
     override fun onEditNote(note: Note) {
-        TODO("Not yet implemented")
+        val event = NoteEvent(note, EventType.EDIT_NOTE)
+        setFragmentResult(NOTE_EVENT_REQUEST_KEY, bundleOf(NOTE_EVENT_BUNDLE_KEY to event))
+        findNavController().navigate(NoteListFragmentDirections.actionNoteListFragmentToCreateEditFragment())
     }
 
     override fun onDeleteNote(note: Note) {

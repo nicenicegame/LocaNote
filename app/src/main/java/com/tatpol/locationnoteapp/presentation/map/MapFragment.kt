@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +12,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -25,13 +27,23 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.tatpol.locationnoteapp.BuildConfig
-import com.tatpol.locationnoteapp.Constants
+import com.tatpol.locationnoteapp.Constants.BANGKOK_POSITION
+import com.tatpol.locationnoteapp.Constants.DEFAULT_ZOOM
+import com.tatpol.locationnoteapp.Constants.MAX_ZOOM
+import com.tatpol.locationnoteapp.Constants.MIN_ZOOM
+import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
+import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
 import com.tatpol.locationnoteapp.R
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
 import com.tatpol.locationnoteapp.databinding.FragmentMapBinding
+import com.tatpol.locationnoteapp.presentation.EventType
+import com.tatpol.locationnoteapp.presentation.MapNoteViewModel
+import com.tatpol.locationnoteapp.presentation.NoteEvent
 import com.tatpol.locationnoteapp.presentation.adapter.CustomInfoWindowAdapter
 import dagger.hilt.android.AndroidEntryPoint
+
+private const val TAG = "MapFragment"
 
 @AndroidEntryPoint
 class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
@@ -47,7 +59,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     private var locationPermissionGranted = false
 
-    private val viewModel: MapViewModel by viewModels()
+    private val viewModel: MapNoteViewModel by activityViewModels()
 
     private val markers = mutableListOf<Marker>()
 
@@ -64,28 +76,40 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMapBinding.inflate(inflater)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initMap()
+
+        setFragmentResultListener(NOTE_EVENT_REQUEST_KEY) { _, bundle ->
+            val result = bundle.get(NOTE_EVENT_BUNDLE_KEY) as NoteEvent
+            if (result.type == EventType.SHOW_NOTE_ROUTE) {
+                viewModel.setMapMode(MapMode.NavigationMode(result.note))
+            }
+        }
+
         binding.fabMyLocation.hide()
         binding.fabMyLocation.setOnClickListener {
-            viewModel.lastKnownLocation?.let {
+            viewModel.lastKnownLocation.value?.let {
                 map.animateCamera(
                     CameraUpdateFactory.newLatLngZoom(
                         LatLng(
                             it.latitude,
                             it.longitude
-                        ), 15f
+                        ), DEFAULT_ZOOM
                     )
                 )
             }
         }
-        initMap()
-        return binding.root
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.uiSettings.isMyLocationButtonEnabled = false
-        map.setMinZoomPreference(10f)
-        map.setMaxZoomPreference(18f)
+        map.setMinZoomPreference(MIN_ZOOM)
+        map.setMaxZoomPreference(MAX_ZOOM)
         map.setInfoWindowAdapter(CustomInfoWindowAdapter(requireContext()))
         map.setOnMarkerClickListener(this)
         map.setOnInfoWindowLongClickListener(this)
@@ -97,7 +121,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, 15f))
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, DEFAULT_ZOOM))
         marker.showInfoWindow()
         return true
     }
@@ -141,23 +165,23 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     @SuppressLint("MissingPermission")
     private fun getDeviceLocation() {
         if (!locationPermissionGranted) return
-        if (viewModel.lastKnownLocation != null) return
+        if (viewModel.lastKnownLocation.value != null) return
 
         fusedLocationProviderClient.lastLocation
             .addOnSuccessListener { location ->
                 viewModel.updateLastKnownLocation(location)
 
-                if (viewModel.lastKnownLocation != null) {
+                if (viewModel.lastKnownLocation.value != null) {
                     val lastKnownLatLng = LatLng(
-                        viewModel.lastKnownLocation!!.latitude,
-                        viewModel.lastKnownLocation!!.longitude
+                        viewModel.lastKnownLocation.value!!.latitude,
+                        viewModel.lastKnownLocation.value!!.longitude
                     )
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLatLng, 10f))
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(lastKnownLatLng, DEFAULT_ZOOM))
                 } else {
                     map.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(
-                            Constants.BANGKOK_POSITION,
-                            10f
+                            BANGKOK_POSITION,
+                            DEFAULT_ZOOM
                         )
                     )
                     binding.fabMyLocation.hide()
@@ -180,10 +204,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         viewModel.mapMode.observe(viewLifecycleOwner) { mapMode ->
             when (mapMode) {
                 is MapMode.NormalMode -> {
-                    binding.cvNavigation.visibility = View.GONE
+                    binding.cvNavigation.apply {
+                        visibility = View.GONE
+                    }
                 }
                 is MapMode.NavigationMode -> {
-                    binding.cvNavigation.visibility = View.VISIBLE
+                    binding.apply {
+                        cvNavigation.visibility = View.VISIBLE
+                        tvNoteTitle.text = mapMode.note.title
+                        tvNoteAddress.text = mapMode.note.address
+                    }
                 }
             }
         }
