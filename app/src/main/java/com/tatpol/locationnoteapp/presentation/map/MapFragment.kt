@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,8 +41,6 @@ import com.tatpol.locationnoteapp.presentation.MapNoteViewModel
 import com.tatpol.locationnoteapp.presentation.NoteEvent
 import com.tatpol.locationnoteapp.presentation.adapter.CustomInfoWindowAdapter
 import dagger.hilt.android.AndroidEntryPoint
-
-private const val TAG = "MapFragment"
 
 @AndroidEntryPoint
 class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
@@ -86,7 +83,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         setFragmentResultListener(NOTE_EVENT_REQUEST_KEY) { _, bundle ->
             val result = bundle.get(NOTE_EVENT_BUNDLE_KEY) as NoteEvent
             if (result.type == EventType.SHOW_NOTE_ROUTE) {
-                viewModel.setMapMode(MapMode.NavigationMode(result.note))
+                viewModel.setMapMode(MapMode.RoutingMode(result.note))
             }
         }
 
@@ -208,7 +205,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                         visibility = View.GONE
                     }
                 }
-                is MapMode.NavigationMode -> {
+                is MapMode.RoutingMode -> {
                     binding.apply {
                         cvNavigation.visibility = View.VISIBLE
                         tvNoteTitle.text = mapMode.note.title

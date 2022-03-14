@@ -6,5 +6,5 @@ sealed class MapMode {
 
     object NormalMode : MapMode()
 
-    data class NavigationMode(val note: Note) : MapMode()
+    data class RoutingMode(val note: Note) : MapMode()
 }

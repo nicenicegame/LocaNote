@@ -18,7 +18,7 @@
         <action
             android:id="@+id/action_noteListFragment_to_createEditFragment"
             app:destination="@id/createEditFragment"
-            app:popUpTo="@id/mapFragment"
+            app:popUpTo="@id/createEditFragment"
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_noteListFragment_to_mapFragment"

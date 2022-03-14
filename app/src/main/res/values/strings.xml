@@ -11,4 +11,10 @@
     <string name="path">Path</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="create_note_title">Create Note</string>
+    <string name="edit_note_title">Edit Note</string>
+    <string name="note_title">Note Title</string>
+    <string name="note_description">Note Description</string>
+    <string name="note_address">Note Address</string>
+    <string name="submit">Submit</string>
 </resources>
