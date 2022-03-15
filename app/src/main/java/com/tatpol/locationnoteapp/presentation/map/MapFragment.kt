@@ -23,9 +23,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.net.PlacesClient
-import com.tatpol.locationnoteapp.BuildConfig
 import com.tatpol.locationnoteapp.Constants.BANGKOK_POSITION
 import com.tatpol.locationnoteapp.Constants.DEFAULT_ZOOM
 import com.tatpol.locationnoteapp.Constants.MAX_ZOOM
@@ -50,8 +47,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     private lateinit var map: GoogleMap
 
-    private lateinit var placesClient: PlacesClient
-
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     private var locationPermissionGranted = false
@@ -59,6 +54,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private val viewModel: MapNoteViewModel by activityViewModels()
 
     private val markers = mutableListOf<Marker>()
+
+    private var notes: List<Note> = emptyList()
 
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -88,18 +85,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         }
 
         binding.fabMyLocation.hide()
-        binding.fabMyLocation.setOnClickListener {
-            viewModel.lastKnownLocation.value?.let {
-                map.animateCamera(
-                    CameraUpdateFactory.newLatLngZoom(
-                        LatLng(
-                            it.latitude,
-                            it.longitude
-                        ), DEFAULT_ZOOM
-                    )
-                )
-            }
-        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -124,13 +109,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     }
 
     override fun onInfoWindowLongClick(marker: Marker) {
+        val note = notes.find {
+            it.lat == marker.position.latitude && it.lng == marker.position.longitude
+        }
+        viewModel.setMapMode(MapMode.RoutingMode(note!!))
         marker.hideInfoWindow()
     }
 
     private fun initMap() {
-        Places.initialize(requireActivity().applicationContext, BuildConfig.MAPS_API_KEY)
-        placesClient = Places.createClient(requireContext())
-
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireContext())
 
@@ -191,6 +177,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             when (result) {
                 is Resource.Success -> {
                     updateMarkers(result.data)
+                    notes = result.data
                 }
                 is Resource.Error -> {
                     Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
@@ -201,18 +188,35 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         viewModel.mapMode.observe(viewLifecycleOwner) { mapMode ->
             when (mapMode) {
                 is MapMode.NormalMode -> {
-                    binding.cvNavigation.apply {
-                        visibility = View.GONE
+                    binding.apply {
+                        cvNavigation.visibility = View.GONE
+                        fabMyLocation.setImageResource(R.drawable.ic_my_location)
+                        fabMyLocation.setOnClickListener { moveCameraToCurrentLocation() }
                     }
                 }
                 is MapMode.RoutingMode -> {
                     binding.apply {
                         cvNavigation.visibility = View.VISIBLE
+                        fabMyLocation.setImageResource(R.drawable.ic_close)
+                        fabMyLocation.setOnClickListener { viewModel.setMapMode(MapMode.NormalMode) }
                         tvNoteTitle.text = mapMode.note.title
                         tvNoteAddress.text = mapMode.note.address
                     }
                 }
             }
+        }
+    }
+
+    private fun moveCameraToCurrentLocation() {
+        viewModel.lastKnownLocation.value?.let {
+            map.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        it.latitude,
+                        it.longitude
+                    ), DEFAULT_ZOOM
+                )
+            )
         }
     }
 

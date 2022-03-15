@@ -8,6 +8,7 @@
         <entry key="app/src/main/res/drawable/ic_add_location.xml" value="0.164" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.255" />
         <entry key="app/src/main/res/drawable/ic_map.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/ic_my_location.xml" value="0.2485" />
         <entry key="app/src/main/res/drawable/ic_view_list.xml" value="0.255" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.30434782608695654" />
         <entry key="app/src/main/res/layout/custom_info_window.xml" value="0.30434782608695654" />

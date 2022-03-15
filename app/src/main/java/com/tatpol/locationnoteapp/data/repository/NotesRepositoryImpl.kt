@@ -26,6 +26,7 @@ class NotesRepositoryImpl(
             val authStateListener = FirebaseAuth.AuthStateListener {
                 trySend(it.currentUser)
             }
+
             auth.addAuthStateListener(authStateListener)
             awaitClose { auth.removeAuthStateListener(authStateListener) }
         }
@@ -35,6 +36,7 @@ class NotesRepositoryImpl(
     override val notesFlow: Flow<Resource<List<Note>>>
         get() = callbackFlow {
             trySend(Resource.Loading)
+
             val subscription = notesCollection.addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     trySend(Resource.Error(error.localizedMessage ?: "An error occurred"))
