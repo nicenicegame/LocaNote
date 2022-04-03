@@ -1,5 +1,6 @@
 package com.tatpol.locationnoteapp.presentation.note_list
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.map
@@ -15,7 +16,7 @@ class NoteListViewModel @Inject constructor(
     private val notesRepository: NotesRepository
 ) : ViewModel() {
 
-    val notes = notesRepository.notesFlow.asLiveData()
+    val notes = notesRepository.notes
 
     fun deleteNote(note: Note) {
         notesRepository.deleteNote(note)

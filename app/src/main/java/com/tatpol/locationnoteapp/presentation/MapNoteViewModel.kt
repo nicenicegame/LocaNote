@@ -20,7 +20,7 @@ class MapNoteViewModel @Inject constructor(
 
     private val geocoder = Geocoder(application, Locale.getDefault())
 
-    val notes = notesRepository.notesFlow.asLiveData()
+    val notes = notesRepository.notes
 
     private var _lastKnownLocation = MutableLiveData<Location?>(null)
     val lastKnownLocation: LiveData<Location?> get() = _lastKnownLocation

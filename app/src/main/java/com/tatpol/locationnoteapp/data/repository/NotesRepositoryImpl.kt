@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tatpol.locationnoteapp.Constants.NOTES_COLLECTION_PATH
+import com.tatpol.locationnoteapp.data.api.DirectionsService
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +17,8 @@ import kotlinx.coroutines.flow.callbackFlow
 @ExperimentalCoroutinesApi
 class NotesRepositoryImpl(
     db: FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val directionsService: DirectionsService
 ) : NotesRepository {
 
     private val notesCollection = db.collection(NOTES_COLLECTION_PATH)
@@ -33,7 +35,7 @@ class NotesRepositoryImpl(
 
     override val user: LiveData<FirebaseUser?> = userFlow.asLiveData()
 
-    override val notesFlow: Flow<Resource<List<Note>>>
+    override val notes: LiveData<Resource<List<Note>>>
         get() = callbackFlow {
             trySend(Resource.Loading)
 
@@ -52,7 +54,7 @@ class NotesRepositoryImpl(
             }
 
             awaitClose { subscription.remove() }
-        }
+        }.asLiveData()
 
     override fun addNote(note: Note) {
         notesCollection.add(note.copy(userId = user.value?.uid))
@@ -70,7 +72,7 @@ class NotesRepositoryImpl(
         }
     }
 
-    override fun getRouteNote(note: Note) {
-        TODO("Not yet implemented")
+    override suspend fun getNoteRoute(note: Note) {
+        return directionsService.getDirections()
     }
 }

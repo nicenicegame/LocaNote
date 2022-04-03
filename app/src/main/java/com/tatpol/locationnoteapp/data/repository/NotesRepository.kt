@@ -10,7 +10,7 @@ interface NotesRepository {
 
     val user: LiveData<FirebaseUser?>
 
-    val notesFlow: Flow<Resource<List<Note>>>
+    val notes: LiveData<Resource<List<Note>>>
 
     fun addNote(note: Note)
 
@@ -18,5 +18,5 @@ interface NotesRepository {
 
     fun updateNote(note: Note)
 
-    fun getRouteNote(note: Note)
+    suspend fun getNoteRoute(note: Note)
 }
