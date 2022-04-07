@@ -12,4 +12,5 @@ object Constants {
     const val MIN_ZOOM = 10f
     const val MAX_ZOOM = 18f
     const val DEFAULT_ZOOM = 10f
+    const val MID_ZOOM = 12f
 }

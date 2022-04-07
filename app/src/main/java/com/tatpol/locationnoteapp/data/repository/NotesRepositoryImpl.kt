@@ -2,17 +2,21 @@ package com.tatpol.locationnoteapp.data.repository
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tatpol.locationnoteapp.Constants.NOTES_COLLECTION_PATH
 import com.tatpol.locationnoteapp.data.api.DirectionsService
+import com.tatpol.locationnoteapp.data.model.DirectionsResult
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
+import com.tatpol.locationnoteapp.toFormattedString
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import java.lang.Exception
 
 @ExperimentalCoroutinesApi
 class NotesRepositoryImpl(
@@ -72,7 +76,17 @@ class NotesRepositoryImpl(
         }
     }
 
-    override suspend fun getNoteRoute(note: Note) {
-        return directionsService.getDirections()
+    override suspend fun getNoteRoute(fromLocation: LatLng, toLocation: LatLng): Resource<List<DirectionsResult.Route>> {
+        return try {
+            val result = directionsService.getDirections(
+                hashMapOf(
+                    "origin" to fromLocation.toFormattedString(),
+                    "destination" to toLocation.toFormattedString()
+                )
+            )
+            Resource.Success(result.routes)
+        } catch (e: Exception) {
+            Resource.Error(e.localizedMessage ?: "An error occurred")
+        }
     }
 }

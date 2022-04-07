@@ -4,11 +4,15 @@ import android.app.Application
 import android.location.Geocoder
 import android.location.Location
 import androidx.lifecycle.*
+import com.google.android.gms.maps.model.LatLng
+import com.tatpol.locationnoteapp.data.model.DirectionsResult
 import com.tatpol.locationnoteapp.data.model.Note
+import com.tatpol.locationnoteapp.data.model.Resource
 import com.tatpol.locationnoteapp.data.repository.NotesRepository
 import com.tatpol.locationnoteapp.presentation.create_edit.FormMode
 import com.tatpol.locationnoteapp.presentation.map.MapMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -38,6 +42,9 @@ class MapNoteViewModel @Inject constructor(
 
     private var _formMode = MutableLiveData<FormMode>(FormMode.CreateMode)
     val formMode: LiveData<FormMode> get() = _formMode
+
+    private var _routes = MutableLiveData<Resource<List<DirectionsResult.Route>>>()
+    val routes: LiveData<Resource<List<DirectionsResult.Route>>> get() = _routes
 
     fun updateLastKnownLocation(location: Location) {
         _lastKnownLocation.value = location
@@ -75,6 +82,15 @@ class MapNoteViewModel @Inject constructor(
                 }
                 else -> Unit
             }
+        }
+    }
+
+    fun displayNoteRoute(note: Note) {
+        viewModelScope.launch {
+            _routes.value = notesRepository.getNoteRoute(
+                LatLng(_lastKnownLocation.value?.latitude!!, _lastKnownLocation.value?.longitude!!),
+                LatLng(note.lat, note.lng)
+            )
         }
     }
 }

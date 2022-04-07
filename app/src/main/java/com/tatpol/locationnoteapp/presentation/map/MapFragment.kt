@@ -3,7 +3,10 @@ package com.tatpol.locationnoteapp.presentation.map
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,17 +22,17 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
+import com.google.maps.android.PolyUtil
 import com.tatpol.locationnoteapp.Constants.BANGKOK_POSITION
 import com.tatpol.locationnoteapp.Constants.DEFAULT_ZOOM
 import com.tatpol.locationnoteapp.Constants.MAX_ZOOM
+import com.tatpol.locationnoteapp.Constants.MID_ZOOM
 import com.tatpol.locationnoteapp.Constants.MIN_ZOOM
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
 import com.tatpol.locationnoteapp.R
+import com.tatpol.locationnoteapp.data.model.DirectionsResult
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
 import com.tatpol.locationnoteapp.databinding.FragmentMapBinding
@@ -54,6 +57,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private val viewModel: MapNoteViewModel by activityViewModels()
 
     private val markers = mutableListOf<Marker>()
+
+    private var polyLine: Polyline? = null
 
     private var notes: List<Note> = emptyList()
 
@@ -81,12 +86,14 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             val result = bundle.get(NOTE_EVENT_BUNDLE_KEY) as NoteEvent
             if (result.type == EventType.SHOW_NOTE_ROUTE) {
                 viewModel.setMapMode(MapMode.RoutingMode(result.note))
+                viewModel.displayNoteRoute(result.note)
             }
         }
 
         binding.fabMyLocation.hide()
     }
 
+    @SuppressLint("PotentialBehaviorOverride")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.uiSettings.isMyLocationButtonEnabled = false
@@ -103,7 +110,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, DEFAULT_ZOOM))
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.position, MID_ZOOM))
         marker.showInfoWindow()
         return true
     }
@@ -113,6 +120,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             it.lat == marker.position.latitude && it.lng == marker.position.longitude
         }
         viewModel.setMapMode(MapMode.RoutingMode(note!!))
+        viewModel.displayNoteRoute(note)
         marker.hideInfoWindow()
     }
 
@@ -182,7 +190,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 is Resource.Error -> {
                     Toast.makeText(requireContext(), result.message, Toast.LENGTH_SHORT).show()
                 }
-                is Resource.Loading -> {}
+                is Resource.Loading -> Unit
             }
         }
         viewModel.mapMode.observe(viewLifecycleOwner) { mapMode ->
@@ -198,11 +206,26 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     binding.apply {
                         cvNavigation.visibility = View.VISIBLE
                         fabMyLocation.setImageResource(R.drawable.ic_close)
-                        fabMyLocation.setOnClickListener { viewModel.setMapMode(MapMode.NormalMode) }
+                        fabMyLocation.setOnClickListener {
+                            viewModel.setMapMode(MapMode.NormalMode)
+                            polyLine?.remove()
+                        }
                         tvNoteTitle.text = mapMode.note.title
                         tvNoteAddress.text = mapMode.note.address
                     }
                 }
+            }
+        }
+        viewModel.routes.observe(viewLifecycleOwner) { result ->
+            when (result) {
+                is Resource.Success -> {
+                    val routes = result.data
+                    drawPolyline(routes)
+                }
+                is Resource.Error -> {
+
+                }
+                is Resource.Loading -> Unit
             }
         }
     }
@@ -231,6 +254,21 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
             val newMarker = map.addMarker(markerOptions)
             markers.add(newMarker!!)
+        }
+    }
+
+    private fun drawPolyline(routes: List<DirectionsResult.Route>) {
+        if (!routes.isNullOrEmpty()) {
+            polyLine?.remove()
+            val polylineOptions = PolylineOptions()
+            // get first route
+            val route = routes[0]
+            val path = PolyUtil.decode(route.overviewPolyline.points)
+            polylineOptions.color(Color.BLUE)
+            polylineOptions.width(8f)
+            polylineOptions.addAll(path)
+            polyLine = map.addPolyline(polylineOptions)
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(path[0], MID_ZOOM))
         }
     }
 }
