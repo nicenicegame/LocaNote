@@ -9,13 +9,9 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavOptions
-import androidx.navigation.NavOptionsBuilder
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
-import com.tatpol.locationnoteapp.R
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
 import com.tatpol.locationnoteapp.databinding.FragmentNoteListBinding
@@ -71,13 +67,11 @@ class NoteListFragment : Fragment(), NoteAdapter.NoteItemClickListener {
     override fun onGetNoteRoute(note: Note) {
         val event = NoteEvent(note, EventType.SHOW_NOTE_ROUTE)
         setFragmentResult(NOTE_EVENT_REQUEST_KEY, bundleOf(NOTE_EVENT_BUNDLE_KEY to event))
-        findNavController().navigate(NoteListFragmentDirections.actionNoteListFragmentToMapFragment())
     }
 
     override fun onEditNote(note: Note) {
         val event = NoteEvent(note, EventType.EDIT_NOTE)
         setFragmentResult(NOTE_EVENT_REQUEST_KEY, bundleOf(NOTE_EVENT_BUNDLE_KEY to event))
-        findNavController().navigate(NoteListFragmentDirections.actionNoteListFragmentToCreateEditFragment())
     }
 
     override fun onDeleteNote(note: Note) {

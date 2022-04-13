@@ -5,21 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
-import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
-import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
+import androidx.fragment.app.viewModels
 import com.tatpol.locationnoteapp.R
 import com.tatpol.locationnoteapp.databinding.FragmentCreateEditBinding
-import com.tatpol.locationnoteapp.presentation.EventType
 import com.tatpol.locationnoteapp.presentation.MapNoteViewModel
-import com.tatpol.locationnoteapp.presentation.NoteEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class CreateEditFragment : Fragment() {
 
-    private val viewModel: MapNoteViewModel by activityViewModels()
+    private val viewModel: MapNoteViewModel by viewModels(
+        ownerProducer = { requireParentFragment() }
+    )
 
     private lateinit var binding: FragmentCreateEditBinding
 
@@ -34,17 +31,13 @@ class CreateEditFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setFragmentResultListener(NOTE_EVENT_REQUEST_KEY) { _, bundle ->
-            val result = bundle.get(NOTE_EVENT_BUNDLE_KEY) as NoteEvent
-            if (result.type == EventType.EDIT_NOTE) {
-                viewModel.setFormMode(FormMode.EditMode(result.note))
-            }
-        }
+
         binding.btnSubmit.setOnClickListener {
             val title = binding.etNoteTitle.editText?.text.toString()
             val description = binding.etNoteDescription.editText?.text.toString()
             viewModel.submitForm(title, description)
         }
+
         subscribeUi()
     }
 

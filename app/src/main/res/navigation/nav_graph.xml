@@ -3,43 +3,50 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mapFragment">
+    app:startDestination="@id/signInFragment">
 
     <fragment
-        android:id="@+id/mapFragment"
-        android:name="com.tatpol.locationnoteapp.presentation.map.MapFragment"
-        android:label="MapFragment"
-        tools:layout="@layout/fragment_map" />
-    <fragment
-        android:id="@+id/noteListFragment"
-        android:name="com.tatpol.locationnoteapp.presentation.note_list.NoteListFragment"
-        android:label="NoteListFragment"
-        tools:layout="@layout/fragment_note_list">
+        android:id="@+id/signInFragment"
+        android:name="com.tatpol.locationnoteapp.presentation.sign_in.SignInFragment"
+        android:label="SignInFragment"
+        tools:layout="@layout/fragment_sign_in">
         <action
-            android:id="@+id/action_noteListFragment_to_mapFragment"
+            android:id="@+id/action_signInFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_mapFragment"
             app:destination="@id/mapFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@id/mapFragment"
-            app:popUpToInclusive="false"
-            app:restoreState="true" />
+            app:popUpTo="@id/signInFragment"
+            app:popUpToInclusive="true" />
         <action
-            android:id="@+id/action_noteListFragment_to_createEditFragment"
-            app:destination="@id/createEditFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@id/mapFragment"
-            app:popUpToInclusive="false"
-            app:restoreState="true" />
+            android:id="@+id/action_signInFragment_to_mapNoteViewPagerFragment"
+            app:destination="@id/mapNoteViewPagerFragment"
+            app:popUpTo="@id/signInFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
-        android:id="@+id/createEditFragment"
-        android:name="com.tatpol.locationnoteapp.presentation.create_edit.CreateEditFragment"
-        android:label="CreateEditFragment"
-        tools:layout="@layout/fragment_create_edit" />
+        android:id="@+id/signUpFragment"
+        android:name="com.tatpol.locationnoteapp.presentation.sign_up.SignUpFragment"
+        android:label="SignUpFragment"
+        tools:layout="@layout/fragment_sign_up">
+        <action
+            android:id="@+id/action_signUpFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
+        <action
+            android:id="@+id/action_signUpFragment_to_mapFragment"
+            app:destination="@id/mapFragment"
+            app:popUpTo="@id/signInFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_signUpFragment_to_mapNoteViewPagerFragment"
+            app:destination="@id/mapNoteViewPagerFragment"
+            app:popUpTo="@id/signInFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/mapNoteViewPagerFragment"
+        android:name="com.tatpol.locationnoteapp.presentation.MapNoteViewPagerFragment"
+        android:label="MapNoteViewPagerFragment"
+        tools:layout="@layout/fragment_map_note_view_pager" />
 
 </navigation>
