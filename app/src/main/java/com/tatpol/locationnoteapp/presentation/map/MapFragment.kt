@@ -38,6 +38,8 @@ import com.tatpol.locationnoteapp.presentation.MapNoteViewModel
 import com.tatpol.locationnoteapp.presentation.adapter.CustomInfoWindowAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
+@RequiresApi(Build.VERSION_CODES.N)
+@SuppressLint("MissingPermission", "PotentialBehaviorOverride")
 @AndroidEntryPoint
 class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
     GoogleMap.OnInfoWindowLongClickListener {
@@ -64,7 +66,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     private var notes: List<Note> = emptyList()
 
-    @RequiresApi(Build.VERSION_CODES.N)
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -91,8 +92,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         binding.fabMyLocation.hide()
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    @SuppressLint("PotentialBehaviorOverride")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.uiSettings.isMyLocationButtonEnabled = false
@@ -146,7 +145,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     private fun getLocationPermission() {
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
@@ -163,7 +161,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         ))
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     @SuppressLint("MissingPermission")
     private fun updateLocationUi() {
         if (locationPermissionGranted) {
@@ -176,7 +173,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         }
     }
 
-    @SuppressLint("MissingPermission")
     private fun getDeviceLocation() {
         if (!locationPermissionGranted) return
         if (viewModel.lastKnownLocation.value != null) return
@@ -310,7 +306,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
 
-    @SuppressLint("MissingPermission")
     private fun startLocationUpdates() {
         fusedLocationProviderClient.requestLocationUpdates(
             locationRequest,

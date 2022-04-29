@@ -49,6 +49,9 @@ class MapNoteViewModel @Inject constructor(
     private var _routes = MutableLiveData<Resource<List<DirectionsResult.Route>>>()
     val routes: LiveData<Resource<List<DirectionsResult.Route>>> get() = _routes
 
+    private var _createEditFormEvent = MutableLiveData<FormEvent>(FormEvent.Empty)
+    val createEditFormEvent: LiveData<FormEvent> get() = _createEditFormEvent
+
     fun updateLastKnownLocation(location: Location) {
         _lastKnownLocation.value = location
     }
@@ -74,6 +77,7 @@ class MapNoteViewModel @Inject constructor(
                             address = currentAddress.value!!,
                         )
                     )
+                    _createEditFormEvent.value = FormEvent.Success("New note created successfully")
                 }
                 is FormMode.EditMode -> {
                     notesRepository.updateNote(
@@ -82,6 +86,7 @@ class MapNoteViewModel @Inject constructor(
                             description = description
                         )
                     )
+                    _createEditFormEvent.value = FormEvent.Success("Edited note successfully")
                 }
                 else -> Unit
             }

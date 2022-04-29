@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.tatpol.locationnoteapp.databinding.FragmentSignInBinding
-import com.tatpol.locationnoteapp.presentation.AuthFormEvent
+import com.tatpol.locationnoteapp.presentation.FormEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -45,16 +45,16 @@ class SignInFragment : Fragment() {
     private fun subscribeUi() {
         viewModel.formEvent.observe(viewLifecycleOwner) { event ->
             when (event) {
-                is AuthFormEvent.Success -> {
+                is FormEvent.Success -> {
 
                 }
-                is AuthFormEvent.Error -> {
+                is FormEvent.Error -> {
 
                 }
-                is AuthFormEvent.Empty -> {
+                is FormEvent.Empty -> {
 
                 }
-                is AuthFormEvent.Loading -> {
+                is FormEvent.Loading -> {
 
                 }
             }

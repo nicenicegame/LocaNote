@@ -6,5 +6,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 enum class EventType : Parcelable {
     EDIT_NOTE,
-    SHOW_NOTE_ROUTE
+    SHOW_NOTE_ROUTE,
 }

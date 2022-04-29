@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.tatpol.locationnoteapp.data.repository.NotesRepository
-import com.tatpol.locationnoteapp.presentation.AuthFormEvent
+import com.tatpol.locationnoteapp.presentation.FormEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -17,26 +17,26 @@ class SignUpViewModel @Inject constructor(
 
     val user = notesRepository.user
 
-    private var _formEvent = MutableLiveData<AuthFormEvent>(AuthFormEvent.Empty)
-    val formEvent: LiveData<AuthFormEvent> get() = _formEvent
+    private var _formEvent = MutableLiveData<FormEvent>(FormEvent.Empty)
+    val formEvent: LiveData<FormEvent> get() = _formEvent
 
     fun signUpWithEmailProvider(email: String, password: String, confirmPassword: String) {
         if (password != confirmPassword) {
-            _formEvent.value = AuthFormEvent.Error("Password does not match.")
+            _formEvent.value = FormEvent.Error("Password does not match.")
         } else {
-            _formEvent.value = AuthFormEvent.Loading
+            _formEvent.value = FormEvent.Loading
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         successAuthentication()
                     } else {
-                        _formEvent.value = AuthFormEvent.Error("Authentication failed.")
+                        _formEvent.value = FormEvent.Error("Authentication failed.")
                     }
                 }
         }
     }
 
-    fun successAuthentication() {
-        _formEvent.value = AuthFormEvent.Success
+    private fun successAuthentication() {
+        _formEvent.value = FormEvent.Success()
     }
 }
