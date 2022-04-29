@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.viewpager2.widget.ViewPager2
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
 import com.tatpol.locationnoteapp.R
@@ -36,7 +37,18 @@ class MapNoteViewPagerFragment : Fragment() {
         viewPager.adapter = MapNotePagerAdapter(this)
         viewPager.isUserInputEnabled = false
 
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                when (position) {
+                    MAP_PAGE_INDEX -> bottomNavigation.selectedItemId = R.id.mapFragment
+                    NOTE_LIST_PAGE_INDEX -> bottomNavigation.selectedItemId = R.id.noteListFragment
+                    CREATE_EDIT_PAGE_INDEX -> bottomNavigation.selectedItemId = R.id.createEditFragment
+                }
+            }
+        })
+
         bottomNavigation.setOnItemSelectedListener { menu ->
+            viewModel.setFormMode(FormMode.CreateMode)
             when (menu.itemId) {
                 R.id.mapFragment -> {
                     viewPager.currentItem = MAP_PAGE_INDEX
@@ -70,8 +82,6 @@ class MapNoteViewPagerFragment : Fragment() {
                 }
             }
         }
-
-        Log.d("MapNote", viewModel.toString())
 
         return binding.root
     }

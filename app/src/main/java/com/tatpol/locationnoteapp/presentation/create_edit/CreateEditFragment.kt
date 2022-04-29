@@ -41,11 +41,6 @@ class CreateEditFragment : Fragment() {
         subscribeUi()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.setFormMode(FormMode.CreateMode)
-    }
-
     private fun subscribeUi() {
         viewModel.currentAddress.observe(viewLifecycleOwner) { address ->
             if (viewModel.formMode.value is FormMode.CreateMode)
@@ -56,6 +51,9 @@ class CreateEditFragment : Fragment() {
                 is FormMode.CreateMode -> {
                     binding.apply {
                         topAppBar.title = getString(R.string.create_note_title)
+                        etNoteTitle.editText?.text?.clear()
+                        etNoteDescription.editText?.text?.clear()
+                        etAddress.editText?.setText(viewModel.currentAddress.value)
                     }
                 }
                 is FormMode.EditMode -> {
