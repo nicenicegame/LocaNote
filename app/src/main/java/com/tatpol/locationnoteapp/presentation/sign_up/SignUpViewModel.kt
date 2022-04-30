@@ -22,7 +22,7 @@ class SignUpViewModel @Inject constructor(
 
     fun signUpWithEmailProvider(email: String, password: String, confirmPassword: String) {
         if (password != confirmPassword) {
-            _formEvent.value = FormEvent.Error("Password does not match.")
+            _formEvent.value = FormEvent.Error("Password does not match")
         } else {
             _formEvent.value = FormEvent.Loading
             auth.createUserWithEmailAndPassword(email, password)
@@ -30,7 +30,9 @@ class SignUpViewModel @Inject constructor(
                     if (task.isSuccessful) {
                         successAuthentication()
                     } else {
-                        _formEvent.value = FormEvent.Error("Authentication failed.")
+                        _formEvent.value = FormEvent.Error(
+                            task.exception?.localizedMessage ?: "Authentication Failed"
+                        )
                     }
                 }
         }

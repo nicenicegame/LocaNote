@@ -3,8 +3,11 @@ package com.tatpol.locationnoteapp.data.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tatpol.locationnoteapp.Constants.NOTES_COLLECTION_PATH
 import com.tatpol.locationnoteapp.data.api.DirectionsService
@@ -16,7 +19,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import java.lang.Exception
 
 @ExperimentalCoroutinesApi
 class NotesRepositoryImpl(
@@ -64,6 +66,15 @@ class NotesRepositoryImpl(
         notesCollection.add(note.copy(userId = user.value?.uid))
     }
 
+    override fun signInWithEmailProvider(email: String, password: String): Task<AuthResult> {
+        return auth.signInWithEmailAndPassword(email, password)
+    }
+
+    override fun signInWithGoogleProvider(token: String): Task<AuthResult> {
+        val firebaseCredential = GoogleAuthProvider.getCredential(token, null)
+        return auth.signInWithCredential(firebaseCredential)
+    }
+
     override fun deleteNote(note: Note) {
         note.id?.let {
             notesCollection.document(note.id).delete()
@@ -76,7 +87,10 @@ class NotesRepositoryImpl(
         }
     }
 
-    override suspend fun getNoteRoute(fromLocation: LatLng, toLocation: LatLng): Resource<List<DirectionsResult.Route>> {
+    override suspend fun getNoteRoute(
+        fromLocation: LatLng,
+        toLocation: LatLng
+    ): Resource<List<DirectionsResult.Route>> {
         return try {
             val result = directionsService.getDirections(
                 hashMapOf(

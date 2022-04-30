@@ -3,7 +3,6 @@ package com.tatpol.locationnoteapp.presentation
 import android.app.Application
 import android.location.Geocoder
 import android.location.Location
-import android.util.Log
 import androidx.lifecycle.*
 import com.google.android.gms.maps.model.LatLng
 import com.tatpol.locationnoteapp.data.model.DirectionsResult

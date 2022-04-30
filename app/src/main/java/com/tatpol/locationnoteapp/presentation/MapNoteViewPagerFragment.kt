@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
@@ -11,6 +12,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
+import com.tatpol.locationnoteapp.Constants.OPEN_SETTINGS_REQUEST_KEY
+import com.tatpol.locationnoteapp.Constants.SNACKBAR_REQUEST_KEY
 import com.tatpol.locationnoteapp.R
 import com.tatpol.locationnoteapp.databinding.FragmentMapNoteViewPagerBinding
 import com.tatpol.locationnoteapp.presentation.adapter.CREATE_EDIT_PAGE_INDEX
@@ -26,18 +29,20 @@ class MapNoteViewPagerFragment : Fragment() {
 
     private val viewModel: MapNoteViewModel by viewModels()
 
+    private lateinit var binding: FragmentMapNoteViewPagerBinding
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val binding = FragmentMapNoteViewPagerBinding.inflate(inflater)
+        binding = FragmentMapNoteViewPagerBinding.inflate(inflater)
         val bottomNavigation = binding.bottomNavigation
         val viewPager = binding.viewPager
 
         setUpViewPager(viewPager, bottomNavigation)
         setUpBottomNavListener(bottomNavigation, viewPager)
-        listenToFragmentResult(viewPager)
+        listenToFragmentResult(viewPager, bottomNavigation)
         subscribeUi(viewPager, binding, bottomNavigation)
 
         return binding.root
@@ -63,7 +68,10 @@ class MapNoteViewPagerFragment : Fragment() {
         }
     }
 
-    private fun listenToFragmentResult(viewPager: ViewPager2) {
+    private fun listenToFragmentResult(
+        viewPager: ViewPager2,
+        bottomNavigation: BottomNavigationView
+    ) {
         childFragmentManager.setFragmentResultListener(
             NOTE_EVENT_REQUEST_KEY,
             viewLifecycleOwner
@@ -79,6 +87,24 @@ class MapNoteViewPagerFragment : Fragment() {
                     viewModel.setMapMode(MapMode.RoutingMode(noteEvent.note!!))
                 }
             }
+        }
+        childFragmentManager.setFragmentResultListener(
+            SNACKBAR_REQUEST_KEY,
+            viewLifecycleOwner
+        ) { _, _ ->
+            Snackbar.make(
+                binding.root,
+                "Location permissions need to be granted. Open application settings?",
+                Snackbar.LENGTH_INDEFINITE
+            )
+                .setAction("Open") {
+                    childFragmentManager.setFragmentResult(
+                        OPEN_SETTINGS_REQUEST_KEY,
+                        bundleOf()
+                    )
+                }
+                .setAnchorView(bottomNavigation)
+                .show()
         }
     }
 

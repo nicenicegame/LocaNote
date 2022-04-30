@@ -66,7 +66,8 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -77,6 +78,23 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/sign_in_header"
                 android:textStyle="bold" />
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="16dp" />
+
+            <Button
+                android:textSize="12sp"
+                android:id="@+id/btnSignInWithGoogle"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/continue_with_google"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:icon="@drawable/googleg_standard_color_18"
+                app:iconTint="@null" />
 
             <LinearLayout
                 android:layout_width="match_parent"

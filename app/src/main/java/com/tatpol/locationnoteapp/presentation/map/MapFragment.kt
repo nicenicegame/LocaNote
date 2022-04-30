@@ -2,11 +2,14 @@ package com.tatpol.locationnoteapp.presentation.map
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +18,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -29,6 +35,8 @@ import com.tatpol.locationnoteapp.Constants.DEFAULT_ZOOM
 import com.tatpol.locationnoteapp.Constants.MAX_ZOOM
 import com.tatpol.locationnoteapp.Constants.MID_ZOOM
 import com.tatpol.locationnoteapp.Constants.MIN_ZOOM
+import com.tatpol.locationnoteapp.Constants.OPEN_SETTINGS_REQUEST_KEY
+import com.tatpol.locationnoteapp.Constants.SNACKBAR_REQUEST_KEY
 import com.tatpol.locationnoteapp.R
 import com.tatpol.locationnoteapp.data.model.DirectionsResult
 import com.tatpol.locationnoteapp.data.model.Note
@@ -37,6 +45,8 @@ import com.tatpol.locationnoteapp.databinding.FragmentMapBinding
 import com.tatpol.locationnoteapp.presentation.MapNoteViewModel
 import com.tatpol.locationnoteapp.presentation.adapter.CustomInfoWindowAdapter
 import dagger.hilt.android.AndroidEntryPoint
+
+private const val TAG = "MapFragment"
 
 @RequiresApi(Build.VERSION_CODES.N)
 @SuppressLint("MissingPermission", "PotentialBehaviorOverride")
@@ -69,9 +79,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val accessCoarseLocationGranted = permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
-        val accessFineLocationGranted = permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+        val accessCoarseLocationGranted =
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
+        val accessFineLocationGranted =
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false)
+
         locationPermissionGranted = accessCoarseLocationGranted && accessFineLocationGranted
+        Log.d(TAG, permissions.toString())
         updateLocationUi()
     }
 
@@ -81,15 +95,20 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentMapBinding.inflate(inflater)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         initMap()
-
         binding.fabMyLocation.hide()
+
+        setFragmentResultListener(OPEN_SETTINGS_REQUEST_KEY) { _, _ ->
+            val uri = Uri.fromParts("package", requireActivity().packageName, null)
+            val intent = Intent().apply {
+                action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                data = uri
+            }
+            startActivity(intent)
+        }
+
+        return binding.root
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -102,10 +121,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         map.setOnInfoWindowLongClickListener(this)
 
         getLocationPermission()
-        updateLocationUi()
-        getDeviceLocation()
         subscribeUi()
-        startLocationUpdates()
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
@@ -130,16 +146,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             LocationServices.getFusedLocationProviderClient(requireContext())
 
         locationRequest = LocationRequest.create().apply {
-            interval = 2000
-            fastestInterval = 1000
+            interval = 5000
+            fastestInterval = 2000
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                for (location in locationResult.locations) {
-                    Log.d("MapFragment", location.toString())
-                    Toast.makeText(requireContext(), "${location.latitude}, ${location.longitude}", Toast.LENGTH_SHORT).show()
+                locationResult.lastLocation.let {
+                    viewModel.updateLastKnownLocation(it)
                 }
             }
         }
@@ -154,22 +169,30 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
-        ) locationPermissionGranted = true
-        else locationPermissionRequest.launch(arrayOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ))
+        ) {
+            locationPermissionGranted = true
+            updateLocationUi()
+        }
+        else {
+            locationPermissionRequest.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            )
+        }
     }
 
-    @SuppressLint("MissingPermission")
     private fun updateLocationUi() {
         if (locationPermissionGranted) {
             map.isMyLocationEnabled = true
             binding.fabMyLocation.show()
+            getDeviceLocation()
+            startLocationUpdates()
         } else {
             binding.fabMyLocation.hide()
             map.isMyLocationEnabled = false
-            getLocationPermission()
+            setFragmentResult(SNACKBAR_REQUEST_KEY, bundleOf())
         }
     }
 
@@ -294,7 +317,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     override fun onResume() {
         super.onResume()
-        startLocationUpdates()
+        if (locationPermissionGranted) startLocationUpdates()
     }
 
     override fun onPause() {

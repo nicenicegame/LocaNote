@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.tatpol.locationnoteapp.databinding.FragmentSignUpBinding
 import com.tatpol.locationnoteapp.presentation.FormEvent
 import com.tatpol.locationnoteapp.presentation.sign_in.SignInFragmentDirections
@@ -51,7 +52,7 @@ class SignUpFragment : Fragment() {
 
                 }
                 is FormEvent.Error -> {
-
+                    Snackbar.make(binding.root, event.message, Snackbar.LENGTH_SHORT).show()
                 }
                 is FormEvent.Empty -> {
 
