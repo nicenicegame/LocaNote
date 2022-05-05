@@ -4,18 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
-import com.tatpol.locationnoteapp.Constants
-import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
-import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
+import com.google.android.material.snackbar.Snackbar
 import com.tatpol.locationnoteapp.R
 import com.tatpol.locationnoteapp.databinding.FragmentCreateEditBinding
-import com.tatpol.locationnoteapp.presentation.EventType
+import com.tatpol.locationnoteapp.presentation.FormEvent
 import com.tatpol.locationnoteapp.presentation.MapNoteViewModel
-import com.tatpol.locationnoteapp.presentation.NoteEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -69,6 +64,23 @@ class CreateEditFragment : Fragment() {
                         etNoteTitle.editText?.setText(formMode.note.title)
                         etNoteDescription.editText?.setText(formMode.note.description)
                         etAddress.editText?.setText(formMode.note.address)
+                    }
+                }
+            }
+        }
+        viewModel.createEditFormEvent.observe(viewLifecycleOwner) { event ->
+            when (event) {
+                is FormEvent.Error -> {
+                    binding.apply {
+                        etNoteTitle.error = " "
+                        etNoteDescription.error = " "
+                    }
+                    Snackbar.make(binding.root, event.message, Snackbar.LENGTH_SHORT).show()
+                }
+                else -> {
+                    binding.apply {
+                        etNoteTitle.error = null
+                        etNoteDescription.error = null
                     }
                 }
             }

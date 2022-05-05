@@ -19,10 +19,10 @@ class SignInViewModel @Inject constructor(
     val formEvent: LiveData<FormEvent> get() = _formEvent
 
     fun signInWithEmailProvider(email: String, password: String) {
-
         if (email.isBlank() || password.isBlank()) {
             _formEvent.value = FormEvent.Error("Form is not fully filled")
         } else {
+            _formEvent.value = FormEvent.Loading
             notesRepository.signInWithEmailProvider(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -38,6 +38,7 @@ class SignInViewModel @Inject constructor(
     }
 
     fun signInWithGoogleProvider(token: String) {
+        _formEvent.value = FormEvent.Loading
         notesRepository.signInWithGoogleProvider(token)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {

@@ -49,7 +49,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="64dp"
-                android:hint="@string/email">
+                android:hint="@string/email"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -61,8 +62,9 @@
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="@string/password">
+                android:hint="@string/password"
+                app:endIconMode="password_toggle"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
@@ -75,7 +77,6 @@
                 android:id="@+id/btnSignIn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:text="@string/sign_in_header"
                 android:textStyle="bold" />
 
@@ -85,13 +86,13 @@
                 android:layout_marginVertical="16dp" />
 
             <Button
-                android:textSize="12sp"
                 android:id="@+id/btnSignInWithGoogle"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/continue_with_google"
                 android:textColor="@color/black"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 app:icon="@drawable/googleg_standard_color_18"
                 app:iconTint="@null" />
@@ -124,5 +125,9 @@
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
+
+    <include
+        android:id="@+id/loadingOverlay"
+        layout="@layout/progress_overlay" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

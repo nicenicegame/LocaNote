@@ -12,7 +12,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val auth: FirebaseAuth,
-    notesRepository: NotesRepository
+    private val notesRepository: NotesRepository
 ) : ViewModel() {
 
     val user = notesRepository.user
@@ -21,14 +21,16 @@ class SignUpViewModel @Inject constructor(
     val formEvent: LiveData<FormEvent> get() = _formEvent
 
     fun signUpWithEmailProvider(email: String, password: String, confirmPassword: String) {
-        if (password != confirmPassword) {
+        if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+            _formEvent.value = FormEvent.Error("Form is not fully filled")
+        } else if (password != confirmPassword) {
             _formEvent.value = FormEvent.Error("Password does not match")
         } else {
             _formEvent.value = FormEvent.Loading
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        successAuthentication()
+                        autoSignIn(email, password)
                     } else {
                         _formEvent.value = FormEvent.Error(
                             task.exception?.localizedMessage ?: "Authentication Failed"
@@ -38,7 +40,17 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
-    private fun successAuthentication() {
-        _formEvent.value = FormEvent.Success()
+    private fun autoSignIn(email: String, password: String) {
+        notesRepository.signInWithEmailProvider(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    _formEvent.value = FormEvent.Success()
+                } else {
+                    _formEvent.value =
+                        FormEvent.Error(
+                            task.exception?.localizedMessage ?: "Authentication failed"
+                        )
+                }
+            }
     }
 }

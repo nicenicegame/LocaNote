@@ -29,4 +29,8 @@
     <string name="have_an_account">Have an account?</string>
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="continue_with_google">Continue With Google</string>
+    <string name="location_need_granted">Location permissions need to be granted to use application</string>
+    <string name="order_by_name">Order By Name</string>
+    <string name="order_by_created">Order By Created</string>
+    <string name="sign_out">Sign out</string>
 </resources>

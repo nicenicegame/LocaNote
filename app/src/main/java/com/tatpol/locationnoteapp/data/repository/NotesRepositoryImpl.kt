@@ -27,8 +27,6 @@ class NotesRepositoryImpl(
     private val directionsService: DirectionsService
 ) : NotesRepository {
 
-    private val notesCollection = db.collection(NOTES_COLLECTION_PATH)
-
     private val userFlow: Flow<FirebaseUser?>
         get() = callbackFlow {
             val authStateListener = FirebaseAuth.AuthStateListener {
@@ -41,23 +39,26 @@ class NotesRepositoryImpl(
 
     override val user: LiveData<FirebaseUser?> = userFlow.asLiveData()
 
+    private val notesCollection = db.collection(NOTES_COLLECTION_PATH)
+
     override val notes: LiveData<Resource<List<Note>>>
         get() = callbackFlow {
             trySend(Resource.Loading)
 
-            val subscription = notesCollection.addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    trySend(Resource.Error(error.localizedMessage ?: "An error occurred"))
-                    return@addSnapshotListener
+            val subscription = notesCollection.whereEqualTo("userId", user.value?.uid)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        trySend(Resource.Error(error.localizedMessage ?: "An error occurred"))
+                        return@addSnapshotListener
+                    }
+                    val notes = mutableListOf<Note>()
+                    for (document in snapshot?.documents!!) {
+                        var note = document.toObject(Note::class.java)!!
+                        note = note.copy(id = document.id)
+                        notes.add(note)
+                    }
+                    trySend(Resource.Success(notes))
                 }
-                val notes = mutableListOf<Note>()
-                for (document in snapshot?.documents!!) {
-                    var note = document.toObject(Note::class.java)!!
-                    note = note.copy(id = document.id)
-                    notes.add(note)
-                }
-                trySend(Resource.Success(notes))
-            }
 
             awaitClose { subscription.remove() }
         }.asLiveData()

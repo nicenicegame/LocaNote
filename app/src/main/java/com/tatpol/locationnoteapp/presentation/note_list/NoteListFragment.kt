@@ -1,9 +1,7 @@
 package com.tatpol.locationnoteapp.presentation.note_list
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -12,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
+import com.tatpol.locationnoteapp.R
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
 import com.tatpol.locationnoteapp.databinding.FragmentNoteListBinding
@@ -35,19 +34,27 @@ class NoteListFragment : Fragment(), NoteAdapter.NoteItemClickListener {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentNoteListBinding.inflate(inflater)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         noteAdapter = NoteAdapter(requireContext(), this)
-        binding.rvNoteList.apply {
-            adapter = noteAdapter
-            layoutManager = LinearLayoutManager(requireContext())
+
+        binding.apply {
+            rvNoteList.apply {
+                adapter = noteAdapter
+                layoutManager = LinearLayoutManager(requireContext())
+            }
+            topAppBar.setOnMenuItemClickListener {
+                when (it.itemId) {
+                    R.id.orderByName -> true
+                    R.id.orderByCreated -> true
+                    R.id.signOut -> true
+                    else -> false
+                }
+            }
         }
 
         subscribeUi()
+
+        return binding.root
     }
 
     private fun subscribeUi() {

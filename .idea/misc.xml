@@ -4,14 +4,19 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.40260416666666665" />
+        <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/drawable/ic_map.xml" value="0.272" />
         <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/layout/activity_main.xml" value="0.3179347826086957" />
         <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/layout/fragment_create_edit.xml" value="0.2695035460992908" />
         <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/layout/fragment_map.xml" value="0.2695035460992908" />
         <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/layout/fragment_map_note.xml" value="0.36666666666666664" />
         <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/layout/fragment_map_note_view_pager.xml" value="0.1" />
+        <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/layout/fragment_note_list.xml" value="0.36666666666666664" />
         <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/layout/fragment_sign_in.xml" value="0.3333333333333333" />
         <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/layout/fragment_sign_up.xml" value="0.3333333333333333" />
+        <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/layout/progress_overlay.xml" value="0.36666666666666664" />
         <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/menu/menu_bottom_navigation.xml" value="0.3125" />
+        <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/menu/menu_note_item_popup.xml" value="0.36666666666666664" />
+        <entry key="..\:/Works/StudioProjects/LocaNote/app/src/main/res/menu/menu_note_list.xml" value="0.36666666666666664" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.255" />
         <entry key="app/src/main/res/drawable/ic_add_location.xml" value="0.164" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.255" />

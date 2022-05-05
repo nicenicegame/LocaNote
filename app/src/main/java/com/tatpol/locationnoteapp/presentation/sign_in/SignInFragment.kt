@@ -103,18 +103,26 @@ class SignInFragment : Fragment() {
     private fun subscribeUi() {
         viewModel.formEvent.observe(viewLifecycleOwner) { event ->
             when (event) {
-                is FormEvent.Success -> {
-
-                }
                 is FormEvent.Error -> {
+                    binding.apply {
+                        etEmail.error = " "
+                        etPassword.error = " "
+                    }
                     Snackbar.make(binding.root, event.message, Snackbar.LENGTH_SHORT).show()
                 }
                 is FormEvent.Empty -> {
-
+                    binding.apply {
+                        etEmail.error = null
+                        etPassword.error = null
+                        loadingOverlay.progressOverlay.visibility = View.GONE
+                    }
                 }
                 is FormEvent.Loading -> {
-
+                    binding.apply {
+                        loadingOverlay.progressOverlay.visibility = View.VISIBLE
+                    }
                 }
+                else -> Unit
             }
         }
         viewModel.user.observe(viewLifecycleOwner) { user ->

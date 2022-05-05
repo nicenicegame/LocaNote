@@ -65,6 +65,11 @@ class MapNoteViewModel @Inject constructor(
 
     fun submitForm(title: String, description: String) {
         if (currentAddress.value != null && _lastKnownLocation.value != null) {
+            if (title.isBlank() || description.isBlank()) {
+                _createEditFormEvent.value =
+                    FormEvent.Error("Note title and description must not be empty")
+                return
+            }
             when (_formMode.value) {
                 is FormMode.CreateMode -> {
                     notesRepository.addNote(
@@ -89,6 +94,8 @@ class MapNoteViewModel @Inject constructor(
                 }
                 else -> Unit
             }
+        } else {
+            _createEditFormEvent.value = FormEvent.Error("Cannot submit. Please try again later.")
         }
     }
 
