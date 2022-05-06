@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
@@ -39,7 +40,7 @@ class MapNoteViewPagerFragment : Fragment() {
 
         setUpViewPager(viewPager, bottomNavigation)
         setUpBottomNavListener(bottomNavigation, viewPager)
-        listenToFragmentResult(viewPager, bottomNavigation)
+        listenToFragmentResult(viewPager)
         subscribeUi(viewPager, binding, bottomNavigation)
 
         return binding.root
@@ -63,11 +64,19 @@ class MapNoteViewPagerFragment : Fragment() {
                 else -> Unit
             }
         }
+        viewModel.user.observe(viewLifecycleOwner) { user ->
+            if (user == null) {
+                findNavController()
+                    .navigate(
+                        MapNoteViewPagerFragmentDirections
+                            .actionMapNoteViewPagerFragmentToSignInFragment()
+                    )
+            }
+        }
     }
 
     private fun listenToFragmentResult(
-        viewPager: ViewPager2,
-        bottomNavigation: BottomNavigationView
+        viewPager: ViewPager2
     ) {
         childFragmentManager.setFragmentResultListener(
             NOTE_EVENT_REQUEST_KEY,

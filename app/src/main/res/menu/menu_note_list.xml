@@ -2,11 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <group>
+    <group
+        android:id="@+id/orderAction"
+        android:checkableBehavior="single">
 
         <item
-            android:id="@+id/orderByName"
-            android:title="@string/order_by_name"
+            android:id="@+id/orderByTitle"
+            android:checked="true"
+            android:title="@string/order_by_title"
             app:showAsAction="collapseActionView" />
 
         <item
@@ -16,7 +19,8 @@
 
     </group>
 
-    <group>
+    <group
+        android:id="@+id/appAction">
 
         <item
             android:id="@+id/signOut"

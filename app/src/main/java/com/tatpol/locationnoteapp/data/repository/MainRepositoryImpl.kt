@@ -14,6 +14,7 @@ import com.tatpol.locationnoteapp.data.api.DirectionsService
 import com.tatpol.locationnoteapp.data.model.DirectionsResult
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
+import com.tatpol.locationnoteapp.presentation.NoteOrder
 import com.tatpol.locationnoteapp.toFormattedString
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
@@ -21,11 +22,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 @ExperimentalCoroutinesApi
-class NotesRepositoryImpl(
+class MainRepositoryImpl(
     db: FirebaseFirestore,
     private val auth: FirebaseAuth,
     private val directionsService: DirectionsService
-) : NotesRepository {
+) : MainRepository {
 
     private val userFlow: Flow<FirebaseUser?>
         get() = callbackFlow {
@@ -41,11 +42,18 @@ class NotesRepositoryImpl(
 
     private val notesCollection = db.collection(NOTES_COLLECTION_PATH)
 
-    override val notes: LiveData<Resource<List<Note>>>
-        get() = callbackFlow {
+    override fun getNotes(order: NoteOrder): LiveData<Resource<List<Note>>> {
+        return callbackFlow {
             trySend(Resource.Loading)
 
-            val subscription = notesCollection.whereEqualTo("userId", user.value?.uid)
+            val subscription = notesCollection
+                .whereEqualTo("userId", user.value?.uid)
+                .orderBy(
+                    when (order) {
+                        NoteOrder.BY_TITLE -> "title"
+                        NoteOrder.BY_CREATED_DATE -> "timestamp"
+                    }
+                )
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         trySend(Resource.Error(error.localizedMessage ?: "An error occurred"))
@@ -62,6 +70,7 @@ class NotesRepositoryImpl(
 
             awaitClose { subscription.remove() }
         }.asLiveData()
+    }
 
     override fun addNote(note: Note) {
         notesCollection.add(note.copy(userId = user.value?.uid))
@@ -69,6 +78,14 @@ class NotesRepositoryImpl(
 
     override fun signInWithEmailProvider(email: String, password: String): Task<AuthResult> {
         return auth.signInWithEmailAndPassword(email, password)
+    }
+
+    override fun signUp(email: String, password: String): Task<AuthResult> {
+        return auth.createUserWithEmailAndPassword(email, password)
+    }
+
+    override fun signOut() {
+        auth.signOut()
     }
 
     override fun signInWithGoogleProvider(token: String): Task<AuthResult> {

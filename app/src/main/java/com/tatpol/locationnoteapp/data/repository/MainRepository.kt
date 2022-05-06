@@ -8,16 +8,21 @@ import com.google.firebase.auth.FirebaseUser
 import com.tatpol.locationnoteapp.data.model.DirectionsResult
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
+import com.tatpol.locationnoteapp.presentation.NoteOrder
 
-interface NotesRepository {
+interface MainRepository {
 
     val user: LiveData<FirebaseUser?>
 
-    val notes: LiveData<Resource<List<Note>>>
+    fun getNotes(order: NoteOrder = NoteOrder.BY_CREATED_DATE): LiveData<Resource<List<Note>>>
 
     fun signInWithEmailProvider(email: String, password: String): Task<AuthResult>
 
     fun signInWithGoogleProvider(token: String): Task<AuthResult>
+
+    fun signUp(email: String, password: String): Task<AuthResult>
+
+    fun signOut()
 
     fun addNote(note: Note)
 
@@ -25,5 +30,8 @@ interface NotesRepository {
 
     fun updateNote(note: Note)
 
-    suspend fun getNoteRoute(fromLocation: LatLng, toLocation: LatLng): Resource<List<DirectionsResult.Route>>
+    suspend fun getNoteRoute(
+        fromLocation: LatLng,
+        toLocation: LatLng
+    ): Resource<List<DirectionsResult.Route>>
 }

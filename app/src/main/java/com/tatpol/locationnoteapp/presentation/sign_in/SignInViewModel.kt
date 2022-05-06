@@ -3,17 +3,17 @@ package com.tatpol.locationnoteapp.presentation.sign_in
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.tatpol.locationnoteapp.data.repository.NotesRepository
+import com.tatpol.locationnoteapp.data.repository.MainRepository
 import com.tatpol.locationnoteapp.presentation.FormEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-    private val notesRepository: NotesRepository
+    private val mainRepository: MainRepository
 ) : ViewModel() {
 
-    val user = notesRepository.user
+    val user = mainRepository.user
 
     private var _formEvent = MutableLiveData<FormEvent>(FormEvent.Empty)
     val formEvent: LiveData<FormEvent> get() = _formEvent
@@ -23,7 +23,7 @@ class SignInViewModel @Inject constructor(
             _formEvent.value = FormEvent.Error("Form is not fully filled")
         } else {
             _formEvent.value = FormEvent.Loading
-            notesRepository.signInWithEmailProvider(email, password)
+            mainRepository.signInWithEmailProvider(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         _formEvent.value = FormEvent.Success()
@@ -39,7 +39,7 @@ class SignInViewModel @Inject constructor(
 
     fun signInWithGoogleProvider(token: String) {
         _formEvent.value = FormEvent.Loading
-        notesRepository.signInWithGoogleProvider(token)
+        mainRepository.signInWithGoogleProvider(token)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     _formEvent.value = FormEvent.Success()

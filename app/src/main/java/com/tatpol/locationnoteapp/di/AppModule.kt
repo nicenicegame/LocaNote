@@ -6,8 +6,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.tatpol.locationnoteapp.data.api.DirectionsService
-import com.tatpol.locationnoteapp.data.repository.NotesRepository
-import com.tatpol.locationnoteapp.data.repository.NotesRepositoryImpl
+import com.tatpol.locationnoteapp.data.repository.MainRepository
+import com.tatpol.locationnoteapp.data.repository.MainRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,12 +32,12 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun provideNotesRepository(
+    fun provideMainRepository(
         db: FirebaseFirestore,
         auth: FirebaseAuth,
         directionsService: DirectionsService
-    ): NotesRepository {
-        return NotesRepositoryImpl(db, auth, directionsService)
+    ): MainRepository {
+        return MainRepositoryImpl(db, auth, directionsService)
     }
 
     @Singleton

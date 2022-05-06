@@ -1,24 +1,35 @@
 package com.tatpol.locationnoteapp.presentation.note_list
 
-import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.map
-import androidx.lifecycle.switchMap
 import com.tatpol.locationnoteapp.data.model.Note
-import com.tatpol.locationnoteapp.data.model.Resource
-import com.tatpol.locationnoteapp.data.repository.NotesRepository
+import com.tatpol.locationnoteapp.data.repository.MainRepository
+import com.tatpol.locationnoteapp.presentation.NoteOrder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class NoteListViewModel @Inject constructor(
-    private val notesRepository: NotesRepository
+    private val mainRepository: MainRepository
 ) : ViewModel() {
 
-    val notes = notesRepository.notes
+    private var _noteOrder = MutableLiveData(NoteOrder.BY_TITLE)
+
+    val notes = Transformations.switchMap(_noteOrder) { order ->
+        mainRepository.getNotes(order)
+    }
+
+    fun changeNoteOrder(order: NoteOrder) {
+        _noteOrder.value = order
+    }
 
     fun deleteNote(note: Note) {
-        notesRepository.deleteNote(note)
+        mainRepository.deleteNote(note)
+    }
+
+    fun signOut() {
+        mainRepository.signOut()
     }
 }

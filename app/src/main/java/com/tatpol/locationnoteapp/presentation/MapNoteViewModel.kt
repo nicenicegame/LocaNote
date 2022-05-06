@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.tatpol.locationnoteapp.data.model.DirectionsResult
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.data.model.Resource
-import com.tatpol.locationnoteapp.data.repository.NotesRepository
+import com.tatpol.locationnoteapp.data.repository.MainRepository
 import com.tatpol.locationnoteapp.presentation.create_edit.FormMode
 import com.tatpol.locationnoteapp.presentation.map.MapMode
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,15 +18,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MapNoteViewModel @Inject constructor(
-    private val notesRepository: NotesRepository,
+    private val mainRepository: MainRepository,
     application: Application
 ) : AndroidViewModel(application) {
 
     private val geocoder = Geocoder(application, Locale.getDefault())
 
-    val notes = notesRepository.notes
+    val notes = mainRepository.getNotes()
 
-    val user = notesRepository.user
+    val user = mainRepository.user
 
     private var _lastKnownLocation = MutableLiveData<Location?>(null)
     val lastKnownLocation: LiveData<Location?> get() = _lastKnownLocation
@@ -72,7 +72,7 @@ class MapNoteViewModel @Inject constructor(
             }
             when (_formMode.value) {
                 is FormMode.CreateMode -> {
-                    notesRepository.addNote(
+                    mainRepository.addNote(
                         Note(
                             title = title,
                             description = description,
@@ -84,7 +84,7 @@ class MapNoteViewModel @Inject constructor(
                     _createEditFormEvent.value = FormEvent.Success("New note created successfully")
                 }
                 is FormMode.EditMode -> {
-                    notesRepository.updateNote(
+                    mainRepository.updateNote(
                         (_formMode.value as FormMode.EditMode).note.copy(
                             title = title,
                             description = description
@@ -101,7 +101,7 @@ class MapNoteViewModel @Inject constructor(
 
     fun displayNoteRoute(note: Note) {
         viewModelScope.launch {
-            _routes.value = notesRepository.getNoteRoute(
+            _routes.value = mainRepository.getNoteRoute(
                 LatLng(_lastKnownLocation.value?.latitude!!, _lastKnownLocation.value?.longitude!!),
                 LatLng(note.lat, note.lng)
             )

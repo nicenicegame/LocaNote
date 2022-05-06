@@ -16,6 +16,7 @@ import com.tatpol.locationnoteapp.data.model.Resource
 import com.tatpol.locationnoteapp.databinding.FragmentNoteListBinding
 import com.tatpol.locationnoteapp.presentation.EventType
 import com.tatpol.locationnoteapp.presentation.NoteEvent
+import com.tatpol.locationnoteapp.presentation.NoteOrder
 import com.tatpol.locationnoteapp.presentation.adapter.NoteAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -44,9 +45,20 @@ class NoteListFragment : Fragment(), NoteAdapter.NoteItemClickListener {
             }
             topAppBar.setOnMenuItemClickListener {
                 when (it.itemId) {
-                    R.id.orderByName -> true
-                    R.id.orderByCreated -> true
-                    R.id.signOut -> true
+                    R.id.orderByTitle -> {
+                        it.isChecked = true
+                        viewModel.changeNoteOrder(NoteOrder.BY_TITLE)
+                        true
+                    }
+                    R.id.orderByCreated -> {
+                        it.isChecked = true
+                        viewModel.changeNoteOrder(NoteOrder.BY_CREATED_DATE)
+                        true
+                    }
+                    R.id.signOut -> {
+                        viewModel.signOut()
+                        true
+                    }
                     else -> false
                 }
             }
