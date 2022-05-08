@@ -1,6 +1,5 @@
 package com.tatpol.locationnoteapp.presentation.note_list
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel

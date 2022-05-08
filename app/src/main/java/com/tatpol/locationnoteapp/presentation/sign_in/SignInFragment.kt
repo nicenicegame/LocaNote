@@ -107,6 +107,7 @@ class SignInFragment : Fragment() {
                     binding.apply {
                         etEmail.error = " "
                         etPassword.error = " "
+                        loadingOverlay.progressOverlay.visibility = View.GONE
                     }
                     Snackbar.make(binding.root, event.message, Snackbar.LENGTH_SHORT).show()
                 }

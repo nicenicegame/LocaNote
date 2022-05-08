@@ -53,6 +53,7 @@ class SignUpFragment : Fragment() {
                         etEmail.error = " "
                         etPassword.error = " "
                         etConfirmPassword.error = " "
+                        loadingOverlay.progressOverlay.visibility = View.GONE
                     }
                     Snackbar.make(binding.root, event.message, Snackbar.LENGTH_SHORT).show()
                 }

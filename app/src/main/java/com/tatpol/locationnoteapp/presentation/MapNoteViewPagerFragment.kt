@@ -1,17 +1,23 @@
 package com.tatpol.locationnoteapp.presentation
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.tatpol.locationnoteapp.Constants.CHECK_PERMISSION_REQUEST_KEY
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
+import com.tatpol.locationnoteapp.Constants.SNACKBAR_REQUEST_KEY
 import com.tatpol.locationnoteapp.R
 import com.tatpol.locationnoteapp.databinding.FragmentMapNoteViewPagerBinding
 import com.tatpol.locationnoteapp.presentation.adapter.CREATE_EDIT_PAGE_INDEX
@@ -93,6 +99,28 @@ class MapNoteViewPagerFragment : Fragment() {
                     viewModel.setMapMode(MapMode.RoutingMode(noteEvent.note!!))
                 }
             }
+        }
+        childFragmentManager.setFragmentResultListener(
+            SNACKBAR_REQUEST_KEY,
+            viewLifecycleOwner
+        ) { _, _ ->
+            Snackbar.make(
+                binding.root,
+                getString(R.string.location_need_granted),
+                Snackbar.LENGTH_INDEFINITE
+            )
+                .setAnchorView(binding.bottomNavigation)
+                .setAction("Manage") {
+                    childFragmentManager.setFragmentResult(CHECK_PERMISSION_REQUEST_KEY, bundleOf())
+
+                    val uri = Uri.fromParts("package", requireActivity().packageName, null)
+                    val intent = Intent().apply {
+                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        data = uri
+                    }
+                    startActivity(intent)
+                }
+                .show()
         }
     }
 

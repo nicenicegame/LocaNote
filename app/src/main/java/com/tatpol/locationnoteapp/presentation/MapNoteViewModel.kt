@@ -12,7 +12,9 @@ import com.tatpol.locationnoteapp.data.repository.MainRepository
 import com.tatpol.locationnoteapp.presentation.create_edit.FormMode
 import com.tatpol.locationnoteapp.presentation.map.MapMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
 
@@ -22,7 +24,7 @@ class MapNoteViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val geocoder = Geocoder(application, Locale.getDefault())
+    private val geocoder = Geocoder(application.applicationContext, Locale.getDefault())
 
     val notes = mainRepository.getNotes()
 
@@ -31,11 +33,11 @@ class MapNoteViewModel @Inject constructor(
     private var _lastKnownLocation = MutableLiveData<Location?>(null)
     val lastKnownLocation: LiveData<Location?> get() = _lastKnownLocation
 
-    val currentAddress = Transformations.map(_lastKnownLocation) { location ->
-        location?.let {
-            val addresses = geocoder.getFromLocation(it.latitude, it.longitude, 1)
-            if (addresses.size == 0) return@map null
-            return@map addresses[0].getAddressLine(0)
+    val currentAddress = Transformations.switchMap(_lastKnownLocation) { location ->
+        liveData {
+            location?.let {
+                emit(getAddressFromLocation(it.latitude, it.longitude))
+            }
         }
     }
 
@@ -62,6 +64,13 @@ class MapNoteViewModel @Inject constructor(
     fun setFormMode(mode: FormMode) {
         _formMode.value = mode
     }
+
+    private suspend fun getAddressFromLocation(lat: Double, lng: Double) =
+        withContext(Dispatchers.IO) {
+            val addresses = geocoder.getFromLocation(lat, lng, 1)
+            if (addresses.size == 0) return@withContext null
+            return@withContext addresses[0].getAddressLine(0)
+        }
 
     fun submitForm(title: String, description: String) {
         if (currentAddress.value != null && _lastKnownLocation.value != null) {

@@ -14,7 +14,7 @@ interface MainRepository {
 
     val user: LiveData<FirebaseUser?>
 
-    fun getNotes(order: NoteOrder = NoteOrder.BY_CREATED_DATE): LiveData<Resource<List<Note>>>
+    fun getNotes(order: NoteOrder = NoteOrder.BY_TITLE): LiveData<Resource<List<Note>>>
 
     fun signInWithEmailProvider(email: String, password: String): Task<AuthResult>
 

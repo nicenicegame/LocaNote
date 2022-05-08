@@ -2,14 +2,10 @@ package com.tatpol.locationnoteapp.presentation.map
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
-import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +13,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -28,10 +27,12 @@ import com.google.android.gms.maps.model.*
 import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.PolyUtil
 import com.tatpol.locationnoteapp.Constants.BANGKOK_POSITION
+import com.tatpol.locationnoteapp.Constants.CHECK_PERMISSION_REQUEST_KEY
 import com.tatpol.locationnoteapp.Constants.DEFAULT_ZOOM
 import com.tatpol.locationnoteapp.Constants.MAX_ZOOM
 import com.tatpol.locationnoteapp.Constants.MID_ZOOM
 import com.tatpol.locationnoteapp.Constants.MIN_ZOOM
+import com.tatpol.locationnoteapp.Constants.SNACKBAR_REQUEST_KEY
 import com.tatpol.locationnoteapp.R
 import com.tatpol.locationnoteapp.data.model.DirectionsResult
 import com.tatpol.locationnoteapp.data.model.Note
@@ -90,6 +91,10 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     ): View {
         binding = FragmentMapBinding.inflate(inflater)
 
+        setFragmentResultListener(CHECK_PERMISSION_REQUEST_KEY) { _, _ ->
+            shouldCheckForLocationPermission = true
+        }
+
         initMap()
         binding.fabMyLocation.hide()
 
@@ -98,6 +103,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.style_json))
         map.uiSettings.isMyLocationButtonEnabled = false
         map.setMinZoomPreference(MIN_ZOOM)
         map.setMaxZoomPreference(MAX_ZOOM)
@@ -164,6 +170,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     Manifest.permission.ACCESS_FINE_LOCATION
                 )
             )
+            setFragmentResult(SNACKBAR_REQUEST_KEY, bundleOf())
         }
     }
 
@@ -176,22 +183,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         } else {
             binding.fabMyLocation.hide()
             map.isMyLocationEnabled = false
-            Snackbar.make(
-                binding.root,
-                getString(R.string.location_need_granted),
-                Snackbar.LENGTH_INDEFINITE
-            )
-                .setAction("Manage") {
-                    shouldCheckForLocationPermission = true
-
-                    val uri = Uri.fromParts("package", requireActivity().packageName, null)
-                    val intent = Intent().apply {
-                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        data = uri
-                    }
-                    startActivity(intent)
-                }
-                .show()
         }
     }
 
@@ -303,11 +294,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         if (!routes.isNullOrEmpty()) {
             polyLine?.remove()
             val polylineOptions = PolylineOptions()
-            // get first route
             val route = routes[0]
+            val leg = route.legs[0]
+            val distance = leg.distance
+            binding.tvDistance.text = getString(R.string.distance_format, distance.value.toFloat() / 1000)
             val path = PolyUtil.decode(route.overviewPolyline.points)
-            polylineOptions.color(Color.BLUE)
+            polylineOptions.color(ContextCompat.getColor(requireContext(), R.color.dark_green))
             polylineOptions.width(10f)
+            polylineOptions.jointType(JointType.ROUND)
+            polylineOptions.startCap(RoundCap())
+            polylineOptions.endCap(RoundCap())
             polylineOptions.addAll(path)
             polyLine = map.addPolyline(polylineOptions)
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(path[0], MID_ZOOM))
