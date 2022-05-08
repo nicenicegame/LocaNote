@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_BUNDLE_KEY
 import com.tatpol.locationnoteapp.Constants.NOTE_EVENT_REQUEST_KEY
 import com.tatpol.locationnoteapp.R
@@ -94,6 +95,10 @@ class NoteListFragment : Fragment(), NoteAdapter.NoteItemClickListener {
     }
 
     override fun onDeleteNote(note: Note) {
-        viewModel.deleteNote(note)
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Delete ${note.title}?")
+            .setNegativeButton("Cancel") { _, _ -> }
+            .setPositiveButton("Delete") { _, _ -> viewModel.deleteNote(note) }
+            .show()
     }
 }
