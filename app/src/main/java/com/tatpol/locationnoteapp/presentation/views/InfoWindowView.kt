@@ -2,6 +2,8 @@ package com.tatpol.locationnoteapp.presentation.views
 
 import android.content.Context
 import android.graphics.*
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
@@ -36,7 +38,7 @@ class InfoWindowView @JvmOverloads constructor(
 
     init {
         setWillNotDraw(false)
-        setPadding((offset + defaultPadding).toInt(),)
+        setPadding((offset + defaultPadding).toInt())
         binding = CustomInfoWindowBinding
             .inflate(
                 LayoutInflater.from(context),
@@ -103,6 +105,15 @@ class InfoWindowView @JvmOverloads constructor(
 
     fun setInfoWindowContent(title: String?, snippet: String?) {
         binding.tvTitle.text = title
-        binding.tvSnippet.text = snippet
+        if (snippet != null) {
+            binding.tvSnippet.text = SpannableString(snippet).apply {
+                setSpan(
+                    UnderlineSpan(),
+                    0,
+                    snippet.length,
+                    0
+                )
+            }
+        }
     }
 }
