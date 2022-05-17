@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tatpol.locationnoteapp.R
 import com.tatpol.locationnoteapp.data.model.Note
 import com.tatpol.locationnoteapp.databinding.ListItemNoteBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class NoteAdapter(
     private val context: Context,
@@ -68,6 +70,8 @@ class NoteAdapter(
         fun bind(note: Note) {
             binding.apply {
                 tvNoteTitle.text = note.title
+                val formatter = SimpleDateFormat("HH:mm yyyy-MM-dd", Locale.US)
+                tvNoteDate.text = formatter.format(Date(note.timestamp))
                 tvNoteDescription.text = note.description
                 tvNoteAddress.text = note.address
             }

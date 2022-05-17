@@ -20,10 +20,22 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
+            android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/ibMenu"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/clCard"
             tools:text="Fashion Island Parking" />
+
+        <TextView
+            android:id="@+id/tvNoteDate"
+            style="?attr/textAppearanceBody2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textStyle="italic"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNoteTitle"
+            tools:text="00:00 12-05-2022" />
 
         <TextView
             android:id="@+id/tvNoteAddress"
@@ -36,7 +48,7 @@
             android:textColor="@color/quantum_grey400"
             app:layout_constraintEnd_toEndOf="@+id/tvNoteTitle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvNoteTitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvNoteDate"
             tools:text="587 589 587 Ram Inthra Rd, Khan Na Yao, Bangkok 10230" />
 
         <TextView
